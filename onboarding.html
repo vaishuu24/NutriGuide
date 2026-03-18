@@ -1,0 +1,1364 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Your Health Profile — NutriGuiide</title>
+  <meta name="description" content="Set up your personalized nutrition profile on NutriGuiide." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Outfit:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet" />
+  <style>
+    :root {
+      --pink: #f472b6;
+      --pink-light: #fbcfe8;
+      --pink-dark: #db2777;
+      --rose: #f9a8d4;
+      --white: #ffffff;
+      --bg: #fff7fb;
+      --card-bg: #fdf2f8;
+      --border: #fce7f3;
+      --text: #500724;
+      --muted: #9d174d;
+      --error: #dc2626;
+      --success: #16a34a;
+      --radius: 16px;
+      --radius-full: 9999px;
+      --shadow: 0 20px 60px rgba(244, 114, 182, 0.18);
+      --transition: all 0.35s cubic-bezier(0.23, 1, 0.32, 1);
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      font-size: 16px;
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(160deg, #fdf2f8 0%, #fff7fb 50%, #fce7f3 100%);
+      min-height: 100vh;
+      color: var(--text);
+      overflow-x: hidden;
+    }
+
+    /* ---- Background Blobs ---- */
+    .blob {
+      position: fixed;
+      border-radius: 60% 40% 30% 70%/60% 30% 70% 40%;
+      pointer-events: none;
+      z-index: 0;
+      animation: blob 12s ease-in-out infinite;
+    }
+
+    .blob-1 {
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(circle, rgba(244, 114, 182, 0.1) 0%, transparent 70%);
+      top: -150px;
+      right: -100px;
+    }
+
+    .blob-2 {
+      width: 380px;
+      height: 380px;
+      background: radial-gradient(circle, rgba(249, 168, 212, 0.1) 0%, transparent 70%);
+      bottom: -80px;
+      left: -80px;
+      animation-delay: -4s;
+    }
+
+    @keyframes blob {
+
+      0%,
+      100% {
+        border-radius: 60% 40% 30% 70%/60% 30% 70% 40%;
+      }
+
+      50% {
+        border-radius: 30% 60% 70% 40%/50% 60% 30% 60%;
+      }
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(28px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
+    }
+
+    @keyframes successPop {
+      0% {
+        transform: scale(0) rotate(-30deg);
+        opacity: 0;
+      }
+
+      60% {
+        transform: scale(1.15) rotate(4deg);
+        opacity: 1;
+      }
+
+      100% {
+        transform: scale(1) rotate(0deg);
+        opacity: 1;
+      }
+    }
+
+    /* ---- Navbar ---- */
+    nav {
+      position: relative;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 22px 40px;
+    }
+
+    .nav-logo {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.4rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--pink-dark), var(--pink));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .nav-skip {
+      font-size: 0.85rem;
+      color: var(--muted);
+      font-weight: 500;
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .nav-skip:hover {
+      color: var(--pink-dark);
+    }
+
+    /* ---- Progress bar across top ---- */
+    .progress-header {
+      position: relative;
+      z-index: 10;
+      padding: 0 40px 28px;
+    }
+
+    .progress-steps {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+
+    .step-pip {
+      flex: 1;
+      height: 5px;
+      border-radius: 9999px;
+      background: var(--border);
+      transition: background 0.5s ease;
+    }
+
+    .step-pip.done {
+      background: linear-gradient(90deg, var(--pink-dark), var(--pink));
+    }
+
+    .step-pip.active {
+      background: linear-gradient(90deg, var(--pink-dark), var(--rose));
+    }
+
+    .progress-label {
+      font-size: 0.8rem;
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    .progress-label strong {
+      color: var(--pink-dark);
+    }
+
+    /* ---- Main card ---- */
+    .onboard-wrap {
+      position: relative;
+      z-index: 1;
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 0 24px 60px;
+    }
+
+    .step-card {
+      background: var(--white);
+      border-radius: 28px;
+      padding: 48px 52px;
+      box-shadow: var(--shadow);
+      border: 1.5px solid var(--border);
+      display: none;
+      animation: slideUp 0.5s ease both;
+    }
+
+    .step-card.active {
+      display: block;
+    }
+
+    .step-icon {
+      width: 64px;
+      height: 64px;
+      border-radius: 18px;
+      background: linear-gradient(135deg, rgba(244, 114, 182, 0.12), rgba(249, 168, 212, 0.15));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      margin-bottom: 20px;
+    }
+
+    .step-heading {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+
+    .step-subhead {
+      font-size: 0.95rem;
+      color: var(--muted);
+      margin-bottom: 36px;
+      line-height: 1.6;
+    }
+
+    /* ---- Form elements ---- */
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    .form-grid.one-col {
+      grid-template-columns: 1fr;
+    }
+
+    .form-grid.three-col {
+      grid-template-columns: 1fr 1fr 1fr;
+    }
+
+    .span-2 {
+      grid-column: span 2;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+
+    .form-label {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .label-hint {
+      font-size: 0.75rem;
+      color: var(--muted);
+      font-weight: 400;
+    }
+
+    .form-input,
+    .form-select,
+    .form-textarea {
+      width: 100%;
+      padding: 13px 18px;
+      border: 2px solid var(--border);
+      border-radius: var(--radius);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.95rem;
+      color: var(--text);
+      background: var(--card-bg);
+      outline: none;
+      transition: var(--transition);
+      -webkit-appearance: none;
+    }
+
+    .form-input::placeholder {
+      color: rgba(157, 23, 77, 0.35);
+    }
+
+    .form-input:focus,
+    .form-select:focus,
+    .form-textarea:focus {
+      border-color: var(--pink);
+      background: var(--white);
+      box-shadow: 0 0 0 4px rgba(244, 114, 182, 0.14);
+    }
+
+    .form-input.error {
+      border-color: var(--error);
+      box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+    }
+
+    .form-textarea {
+      resize: vertical;
+      min-height: 100px;
+      border-radius: var(--radius);
+    }
+
+    .form-select {
+      cursor: pointer;
+    }
+
+    .form-select option {
+      background: white;
+      color: var(--text);
+    }
+
+    /* Input with unit suffix */
+    .input-with-unit {
+      position: relative;
+    }
+
+    .input-with-unit .form-input {
+      padding-right: 56px;
+    }
+
+    .unit-badge {
+      position: absolute;
+      right: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--pink-dark);
+      background: rgba(244, 114, 182, 0.1);
+      padding: 3px 8px;
+      border-radius: 6px;
+      pointer-events: none;
+    }
+
+    /* Radio / Checkbox groups (pill style) */
+    .pill-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .pill-input {
+      display: none;
+    }
+
+    .pill-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 9px 18px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      border: 2px solid var(--border);
+      border-radius: var(--radius-full);
+      background: var(--card-bg);
+      cursor: pointer;
+      color: var(--muted);
+      transition: var(--transition);
+      user-select: none;
+    }
+
+    .pill-label:hover {
+      border-color: var(--pink);
+      color: var(--pink-dark);
+    }
+
+    .pill-input:checked+.pill-label {
+      background: linear-gradient(135deg, var(--pink-dark), var(--pink));
+      color: #fff;
+      border-color: transparent;
+      box-shadow: 0 4px 14px rgba(244, 114, 182, 0.35);
+    }
+
+    /* Range slider */
+    .range-wrap {
+      position: relative;
+    }
+
+    .form-range {
+      width: 100%;
+      -webkit-appearance: none;
+      appearance: none;
+      height: 6px;
+      border-radius: 9999px;
+      background: var(--border);
+      outline: none;
+      cursor: pointer;
+    }
+
+    .form-range::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--pink-dark), var(--pink));
+      box-shadow: 0 2px 10px rgba(244, 114, 182, 0.4);
+      cursor: pointer;
+    }
+
+    .range-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin-top: 8px;
+    }
+
+    .range-value {
+      text-align: center;
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: var(--pink-dark);
+      margin-bottom: 8px;
+    }
+
+    /* Checkbox pill (multi-select) */
+    .check-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .check-card-input {
+      display: none;
+    }
+
+    .check-card-label {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 16px;
+      border: 2px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--card-bg);
+      cursor: pointer;
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--muted);
+      transition: var(--transition);
+    }
+
+    .check-card-label:hover {
+      border-color: var(--pink);
+      color: var(--pink-dark);
+    }
+
+    .check-card-input:checked+.check-card-label {
+      border-color: var(--pink);
+      background: rgba(244, 114, 182, 0.08);
+      color: var(--pink-dark);
+    }
+
+    .check-card-input:checked+.check-card-label .check-dot {
+      background: linear-gradient(135deg, var(--pink-dark), var(--pink));
+    }
+
+    .check-dot {
+      width: 18px;
+      height: 18px;
+      border-radius: 5px;
+      flex-shrink: 0;
+      background: var(--border);
+      transition: background 0.25s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      color: #fff;
+    }
+
+    .check-card-input:checked+.check-card-label .check-dot::after {
+      content: '✓';
+    }
+
+    /* Section divider */
+    .form-divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 28px 0 20px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--muted);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .form-divider::before,
+    .form-divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* Field error text */
+    .field-err {
+      font-size: 0.75rem;
+      color: var(--error);
+      font-weight: 500;
+      display: none;
+      margin-top: 3px;
+    }
+
+    .field-err.show {
+      display: block;
+    }
+
+    /* ---- Navigation buttons ---- */
+    .step-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 40px;
+      gap: 14px;
+    }
+
+    .btn-back {
+      padding: 13px 28px;
+      border-radius: var(--radius-full);
+      border: 2px solid var(--border);
+      background: var(--white);
+      color: var(--muted);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .btn-back:hover {
+      border-color: var(--pink);
+      color: var(--pink-dark);
+    }
+
+    .btn-next {
+      flex: 1;
+      padding: 14px 28px;
+      border-radius: var(--radius-full);
+      background: linear-gradient(135deg, var(--pink-dark), var(--pink));
+      color: #fff;
+      font-family: 'Inter', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 8px 28px rgba(244, 114, 182, 0.38);
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .btn-next:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 14px 40px rgba(244, 114, 182, 0.5);
+    }
+
+    /* ---- Success screen ---- */
+    .success-screen {
+      display: none;
+      text-align: center;
+      padding: 20px 0;
+      animation: slideUp 0.5s ease both;
+    }
+
+    .success-screen.active {
+      display: block;
+    }
+
+    .success-ring {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--pink-dark), var(--pink));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 28px;
+      font-size: 3rem;
+      box-shadow: 0 12px 40px rgba(244, 114, 182, 0.4);
+      animation: successPop 0.6s 0.15s cubic-bezier(0.23, 1, 0.32, 1) both;
+    }
+
+    .success-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: 12px;
+    }
+
+    .success-desc {
+      font-size: 1rem;
+      color: var(--muted);
+      line-height: 1.7;
+      margin-bottom: 36px;
+    }
+
+    .redirect-bar {
+      height: 5px;
+      border-radius: 9999px;
+      background: var(--border);
+      margin-bottom: 16px;
+      overflow: hidden;
+    }
+
+    .redirect-fill {
+      height: 100%;
+      border-radius: 9999px;
+      background: linear-gradient(90deg, var(--pink-dark), var(--pink));
+      width: 0;
+      transition: width 2.8s linear;
+    }
+
+    .redirect-label {
+      font-size: 0.82rem;
+      color: var(--muted);
+    }
+
+    /* Responsive */
+    @media(max-width: 640px) {
+      .step-card {
+        padding: 32px 24px;
+      }
+
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .form-grid.three-col {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .span-2 {
+        grid-column: span 1;
+      }
+
+      nav {
+        padding: 18px 20px;
+      }
+
+      .progress-header {
+        padding: 0 20px 24px;
+      }
+
+      .onboard-wrap {
+        padding: 0 16px 48px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+
+  <!-- Navbar -->
+  <nav>
+    <div class="nav-logo">💗 NutriGuiide</div>
+    <a href="dashboard.html" class="nav-skip">Skip for now →</a>
+  </nav>
+
+  <!-- Step progress bar -->
+  <div class="progress-header">
+    <div class="progress-steps" id="stepPips"></div>
+    <div class="progress-label" id="progressLabel">Step <strong>1</strong> of <strong>6</strong> — Let's get to know you
+    </div>
+  </div>
+
+  <!-- Form wrapper -->
+  <div class="onboard-wrap">
+
+    <!-- ==================== STEP 1: Personal Info ==================== -->
+    <div class="step-card active" id="step-1">
+      <div class="step-icon">👤</div>
+      <div class="step-heading">Personal Information</div>
+      <div class="step-subhead">Tell us the basics so we can personalise your experience.</div>
+
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label" for="firstName">First Name</label>
+          <input type="text" id="firstName" class="form-input" placeholder="Priya" autocomplete="given-name" />
+          <span class="field-err" id="err-firstName">Please enter your first name.</span>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="lastName">Last Name</label>
+          <input type="text" id="lastName" class="form-input" placeholder="Sharma" autocomplete="family-name" />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="dob">Date of Birth</label>
+          <input type="date" id="dob" class="form-input" />
+          <span class="field-err" id="err-dob">Please enter your date of birth.</span>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="email">Email Address</label>
+          <input type="email" id="email" class="form-input" placeholder="you@example.com" autocomplete="email" />
+          <span class="field-err" id="err-email">Please enter a valid email.</span>
+        </div>
+        <div class="form-group span-2">
+          <label class="form-label">Gender</label>
+          <div class="pill-group">
+            <input type="radio" name="gender" id="g-female" value="Female" class="pill-input" />
+            <label for="g-female" class="pill-label">♀️ Female</label>
+            <input type="radio" name="gender" id="g-male" value="Male" class="pill-input" />
+            <label for="g-male" class="pill-label">♂️ Male</label>
+            <input type="radio" name="gender" id="g-nb" value="Non-binary" class="pill-input" />
+            <label for="g-nb" class="pill-label">⚧ Non-binary</label>
+            <input type="radio" name="gender" id="g-prefer" value="Prefer not to say" class="pill-input" />
+            <label for="g-prefer" class="pill-label">🔒 Prefer not to say</label>
+          </div>
+          <span class="field-err" id="err-gender">Please select a gender option.</span>
+        </div>
+      </div>
+
+      <div class="step-nav">
+        <button class="btn-next" onclick="nextStep(1)">Continue →</button>
+      </div>
+    </div>
+
+    <!-- ==================== STEP 2: Body Metrics ==================== -->
+    <div class="step-card" id="step-2">
+      <div class="step-icon">⚖️</div>
+      <div class="step-heading">Body Metrics</div>
+      <div class="step-subhead">Accurate measurements help us calculate your precise calorie and macro needs.</div>
+
+      <div class="form-grid three-col">
+        <div class="form-group">
+          <label class="form-label" for="height">Height</label>
+          <div class="input-with-unit">
+            <input type="number" id="height" class="form-input" placeholder="168" min="100" max="250" />
+            <span class="unit-badge">cm</span>
+          </div>
+          <span class="field-err" id="err-height">Enter a valid height (100–250 cm).</span>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="weight">Current Weight</label>
+          <div class="input-with-unit">
+            <input type="number" id="weight" class="form-input" placeholder="65" min="30" max="300" step="0.1" />
+            <span class="unit-badge">kg</span>
+          </div>
+          <span class="field-err" id="err-weight">Enter a valid weight (30–300 kg).</span>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="targetWeight">Target Weight</label>
+          <div class="input-with-unit">
+            <input type="number" id="targetWeight" class="form-input" placeholder="58" min="30" max="300" step="0.1" />
+            <span class="unit-badge">kg</span>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="waist">Waist <span class="label-hint">(optional)</span></label>
+          <div class="input-with-unit">
+            <input type="number" id="waist" class="form-input" placeholder="76" min="40" max="200" />
+            <span class="unit-badge">cm</span>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="hips">Hips <span class="label-hint">(optional)</span></label>
+          <div class="input-with-unit">
+            <input type="number" id="hips" class="form-input" placeholder="94" min="50" max="200" />
+            <span class="unit-badge">cm</span>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="bodyFat">Body Fat % <span class="label-hint">(optional)</span></label>
+          <div class="input-with-unit">
+            <input type="number" id="bodyFat" class="form-input" placeholder="24" min="5" max="60" />
+            <span class="unit-badge">%</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-divider">Activity Level</div>
+      <div class="pill-group">
+        <input type="radio" name="activity" id="act-sed" value="Sedentary" class="pill-input" />
+        <label for="act-sed" class="pill-label">🪑 Sedentary</label>
+        <input type="radio" name="activity" id="act-light" value="Lightly Active" class="pill-input" />
+        <label for="act-light" class="pill-label">🚶 Lightly Active</label>
+        <input type="radio" name="activity" id="act-mod" value="Moderately Active" class="pill-input" />
+        <label for="act-mod" class="pill-label">🏃 Moderately Active</label>
+        <input type="radio" name="activity" id="act-very" value="Very Active" class="pill-input" />
+        <label for="act-very" class="pill-label">💪 Very Active</label>
+        <input type="radio" name="activity" id="act-extra" value="Athlete" class="pill-input" />
+        <label for="act-extra" class="pill-label">🏅 Athlete / Daily Training</label>
+      </div>
+      <span class="field-err" id="err-activity">Please select your activity level.</span>
+
+      <div class="step-nav">
+        <button class="btn-back" onclick="prevStep(2)">← Back</button>
+        <button class="btn-next" onclick="nextStep(2)">Continue →</button>
+      </div>
+    </div>
+
+    <!-- ==================== STEP 3: Diet Preferences ==================== -->
+    <div class="step-card" id="step-3">
+      <div class="step-icon">🥗</div>
+      <div class="step-heading">Diet &amp; Lifestyle</div>
+      <div class="step-subhead">Your food preferences and lifestyle help us craft meals you'll actually enjoy.</div>
+
+      <div class="form-group" style="margin-bottom:20px;">
+        <label class="form-label">Dietary Style</label>
+        <div class="pill-group">
+          <input type="radio" name="diet" id="d-omni" value="Omnivore" class="pill-input" />
+          <label for="d-omni" class="pill-label">🍗 Omnivore</label>
+          <input type="radio" name="diet" id="d-veg" value="Vegetarian" class="pill-input" />
+          <label for="d-veg" class="pill-label">🥦 Vegetarian</label>
+          <input type="radio" name="diet" id="d-vegan" value="Vegan" class="pill-input" />
+          <label for="d-vegan" class="pill-label">🌱 Vegan</label>
+          <input type="radio" name="diet" id="d-pesc" value="Pescatarian" class="pill-input" />
+          <label for="d-pesc" class="pill-label">🐟 Pescatarian</label>
+          <input type="radio" name="diet" id="d-keto" value="Keto" class="pill-input" />
+          <label for="d-keto" class="pill-label">🥑 Keto</label>
+          <input type="radio" name="diet" id="d-pleo" value="Paleo" class="pill-input" />
+          <label for="d-pleo" class="pill-label">🥩 Paleo</label>
+          <input type="radio" name="diet" id="d-if" value="Intermittent Fasting" class="pill-input" />
+          <label for="d-if" class="pill-label">⏰ Intermittent Fasting</label>
+        </div>
+        <span class="field-err" id="err-diet">Please select a dietary style.</span>
+      </div>
+
+      <div class="form-divider">Food Allergies &amp; Intolerances</div>
+      <div class="check-grid">
+        <div><input type="checkbox" id="al-gluten" value="Gluten" class="check-card-input" /><label for="al-gluten"
+            class="check-card-label"><span class="check-dot"></span>Gluten / Wheat</label></div>
+        <div><input type="checkbox" id="al-dairy" value="Dairy" class="check-card-input" /><label for="al-dairy"
+            class="check-card-label"><span class="check-dot"></span>Dairy / Lactose</label></div>
+        <div><input type="checkbox" id="al-nuts" value="Nuts" class="check-card-input" /><label for="al-nuts"
+            class="check-card-label"><span class="check-dot"></span>Tree Nuts</label></div>
+        <div><input type="checkbox" id="al-peanuts" value="Peanuts" class="check-card-input" /><label for="al-peanuts"
+            class="check-card-label"><span class="check-dot"></span>Peanuts</label></div>
+        <div><input type="checkbox" id="al-soy" value="Soy" class="check-card-input" /><label for="al-soy"
+            class="check-card-label"><span class="check-dot"></span>Soy</label></div>
+        <div><input type="checkbox" id="al-egg" value="Eggs" class="check-card-input" /><label for="al-egg"
+            class="check-card-label"><span class="check-dot"></span>Eggs</label></div>
+        <div><input type="checkbox" id="al-shellfish" value="Shellfish" class="check-card-input" /><label
+            for="al-shellfish" class="check-card-label"><span class="check-dot"></span>Shellfish</label></div>
+        <div><input type="checkbox" id="al-none" value="None" class="check-card-input" /><label for="al-none"
+            class="check-card-label"><span class="check-dot"></span>No allergies</label></div>
+      </div>
+
+      <div class="form-divider">Cuisine Preferences</div>
+      <div class="form-group">
+        <select id="cuisine" class="form-select">
+          <option value="">Select your preferred cuisine style</option>
+          <option>Indian (North Indian)</option>
+          <option>Indian (South Indian)</option>
+          <option>Mediterranean</option>
+          <option>Asian / Pan-Asian</option>
+          <option>Middle Eastern</option>
+          <option>Continental / Western</option>
+          <option>Mix of everything</option>
+        </select>
+      </div>
+
+      <div class="form-divider">Meals &amp; Cooking</div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label" for="mealsPerDay">Meals per Day</label>
+          <select id="mealsPerDay" class="form-select">
+            <option>2 (Large meals)</option>
+            <option selected>3 (Breakfast, Lunch, Dinner)</option>
+            <option>4 (3 meals + 1 snack)</option>
+            <option>5 (3 meals + 2 snacks)</option>
+            <option>6 (Frequent small meals)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="cookingTime">Max Cooking Time</label>
+          <select id="cookingTime" class="form-select">
+            <option>Less than 15 min</option>
+            <option>15–30 min</option>
+            <option selected>30–45 min</option>
+            <option>Up to 1 hour</option>
+            <option>No limit — I love cooking!</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="step-nav">
+        <button class="btn-back" onclick="prevStep(3)">← Back</button>
+        <button class="btn-next" onclick="nextStep(3)">Continue →</button>
+      </div>
+    </div>
+
+    <!-- ==================== STEP 4: Health Goals ==================== -->
+    <div class="step-card" id="step-4">
+      <div class="step-icon">🎯</div>
+      <div class="step-heading">Health Goals</div>
+      <div class="step-subhead">What are you working towards? Select all that apply.</div>
+
+      <div class="form-group" style="margin-bottom:26px;">
+        <label class="form-label">Primary Goal</label>
+        <div class="pill-group">
+          <input type="radio" name="primaryGoal" id="pg-loss" value="Weight Loss" class="pill-input" />
+          <label for="pg-loss" class="pill-label">📉 Weight Loss</label>
+          <input type="radio" name="primaryGoal" id="pg-gain" value="Muscle Gain" class="pill-input" />
+          <label for="pg-gain" class="pill-label">💪 Muscle Gain</label>
+          <input type="radio" name="primaryGoal" id="pg-maint" value="Maintenance" class="pill-input" />
+          <label for="pg-maint" class="pill-label">⚖️ Maintenance</label>
+          <input type="radio" name="primaryGoal" id="pg-energy" value="Energy & Vitality" class="pill-input" />
+          <label for="pg-energy" class="pill-label">⚡ Energy &amp; Vitality</label>
+          <input type="radio" name="primaryGoal" id="pg-health" value="General Health" class="pill-input" />
+          <label for="pg-health" class="pill-label">❤️ General Health</label>
+          <input type="radio" name="primaryGoal" id="pg-gut" value="Gut Health" class="pill-input" />
+          <label for="pg-gut" class="pill-label">🦠 Gut Health</label>
+          <input type="radio" name="primaryGoal" id="pg-skin" value="Skin & Hair" class="pill-input" />
+          <label for="pg-skin" class="pill-label">✨ Skin &amp; Hair</label>
+          <input type="radio" name="primaryGoal" id="pg-hormones" value="Hormonal Balance" class="pill-input" />
+          <label for="pg-hormones" class="pill-label">🔄 Hormonal Balance</label>
+        </div>
+        <span class="field-err" id="err-primaryGoal">Please select your primary goal.</span>
+      </div>
+
+      <div class="form-group" style="margin-bottom:26px;">
+        <label class="form-label">How soon do you want results?</label>
+        <div class="pill-group">
+          <input type="radio" name="timeline" id="tl-1m" value="1 month" class="pill-input" />
+          <label for="tl-1m" class="pill-label">⚡ 1 month (intense)</label>
+          <input type="radio" name="timeline" id="tl-3m" value="3 months" class="pill-input" />
+          <label for="tl-3m" class="pill-label">🎯 3 months</label>
+          <input type="radio" name="timeline" id="tl-6m" value="6 months" class="pill-input" />
+          <label for="tl-6m" class="pill-label">🌸 6 months (steady)</label>
+          <input type="radio" name="timeline" id="tl-year" value="1 year" class="pill-input" />
+          <label for="tl-year" class="pill-label">🌱 Long-term lifestyle</label>
+        </div>
+      </div>
+
+      <div class="form-divider">Weekly Fitness Habits</div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label" for="workoutDays">Workout Days / Week</label>
+          <select id="workoutDays" class="form-select">
+            <option>0 — Not currently exercising</option>
+            <option>1–2 days</option>
+            <option>3–4 days</option>
+            <option selected>5–6 days</option>
+            <option>Every day</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="workoutType">Type of Exercise</label>
+          <select id="workoutType" class="form-select">
+            <option>Casual walking / light stretching</option>
+            <option>Yoga / Pilates</option>
+            <option>Cardio (running, cycling)</option>
+            <option selected>Weight training / Gym</option>
+            <option>HIIT / CrossFit</option>
+            <option>Sports (cricket, football, etc.)</option>
+            <option>Mixed / Variety</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group" style="margin-top:20px;">
+        <label class="form-label" for="sleepHours">Average Sleep <span class="label-hint">— hours per
+            night</span></label>
+        <div class="range-value" id="sleepDisplay">7 hrs</div>
+        <input type="range" id="sleepHours" class="form-range" min="4" max="12" value="7" step="0.5"
+          oninput="document.getElementById('sleepDisplay').textContent = this.value + ' hrs'" />
+        <div class="range-labels"><span>4 hrs</span><span>8 hrs</span><span>12 hrs</span></div>
+      </div>
+
+      <div class="step-nav">
+        <button class="btn-back" onclick="prevStep(4)">← Back</button>
+        <button class="btn-next" onclick="nextStep(4)">Continue →</button>
+      </div>
+    </div>
+
+    <!-- ==================== STEP 5: Medical History ==================== -->
+    <div class="step-card" id="step-5">
+      <div class="step-icon">🩺</div>
+      <div class="step-heading">Medical &amp; Health History</div>
+      <div class="step-subhead">This information helps us avoid contraindicated foods and tailor a safe plan. All data
+        is kept strictly confidential.</div>
+
+      <div class="form-group" style="margin-bottom:22px;">
+        <label class="form-label">Do you have any of the following conditions?</label>
+        <div class="check-grid">
+          <div><input type="checkbox" id="mc-diabetes2" value="Type 2 Diabetes" class="check-card-input" /><label
+              for="mc-diabetes2" class="check-card-label"><span class="check-dot"></span>Type 2 Diabetes</label></div>
+          <div><input type="checkbox" id="mc-diabetes1" value="Type 1 Diabetes" class="check-card-input" /><label
+              for="mc-diabetes1" class="check-card-label"><span class="check-dot"></span>Type 1 Diabetes</label></div>
+          <div><input type="checkbox" id="mc-hyper" value="Hypertension" class="check-card-input" /><label
+              for="mc-hyper" class="check-card-label"><span class="check-dot"></span>Hypertension (High BP)</label>
+          </div>
+          <div><input type="checkbox" id="mc-cholesterol" value="High Cholesterol" class="check-card-input" /><label
+              for="mc-cholesterol" class="check-card-label"><span class="check-dot"></span>High Cholesterol</label>
+          </div>
+          <div><input type="checkbox" id="mc-thyroid" value="Thyroid Disorder" class="check-card-input" /><label
+              for="mc-thyroid" class="check-card-label"><span class="check-dot"></span>Thyroid Disorder</label></div>
+          <div><input type="checkbox" id="mc-pcos" value="PCOS/PCOD" class="check-card-input" /><label for="mc-pcos"
+              class="check-card-label"><span class="check-dot"></span>PCOS / PCOD</label></div>
+          <div><input type="checkbox" id="mc-ibs" value="IBS/IBD" class="check-card-input" /><label for="mc-ibs"
+              class="check-card-label"><span class="check-dot"></span>IBS / IBD</label></div>
+          <div><input type="checkbox" id="mc-fatty" value="Fatty Liver" class="check-card-input" /><label for="mc-fatty"
+              class="check-card-label"><span class="check-dot"></span>Fatty Liver</label></div>
+          <div><input type="checkbox" id="mc-kidney" value="Kidney Issues" class="check-card-input" /><label
+              for="mc-kidney" class="check-card-label"><span class="check-dot"></span>Kidney Issues</label></div>
+          <div><input type="checkbox" id="mc-osteo" value="Osteoporosis" class="check-card-input" /><label
+              for="mc-osteo" class="check-card-label"><span class="check-dot"></span>Osteoporosis</label></div>
+          <div><input type="checkbox" id="mc-anemia" value="Anaemia" class="check-card-input" /><label for="mc-anemia"
+              class="check-card-label"><span class="check-dot"></span>Anaemia / Low Iron</label></div>
+          <div><input type="checkbox" id="mc-none" value="None" class="check-card-input" /><label for="mc-none"
+              class="check-card-label"><span class="check-dot"></span>None of the above</label></div>
+        </div>
+      </div>
+
+      <div class="form-divider">Current Medications</div>
+      <div class="form-group" style="margin-bottom: 20px;">
+        <label class="form-label" for="medications">List any medications you are currently taking <span
+            class="label-hint">(e.g. metformin, thyroxine, statins)</span></label>
+        <textarea id="medications" class="form-textarea"
+          placeholder="e.g. Metformin 500mg, Thyroxine 50mcg, Vitamin D3 60k IU weekly...&#10;Write 'None' if not applicable."></textarea>
+      </div>
+
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label" for="supplements">Supplements / Vitamins</label>
+          <textarea id="supplements" class="form-textarea" style="min-height:80px;"
+            placeholder="e.g. Omega-3, Multivitamin, Protein powder..."></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="surgeries">Past Surgeries / Procedures <span
+              class="label-hint">(optional)</span></label>
+          <textarea id="surgeries" class="form-textarea" style="min-height:80px;"
+            placeholder="e.g. Appendectomy, Bariatric surgery, C-section..."></textarea>
+        </div>
+      </div>
+
+      <div class="form-divider">Lifestyle Health Factors</div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label">Stress Level</label>
+          <div class="pill-group" style="flex-direction:column;">
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+              <input type="radio" name="stress" id="st-low" value="Low" class="pill-input" />
+              <label for="st-low" class="pill-label">😌 Low</label>
+              <input type="radio" name="stress" id="st-mod" value="Moderate" class="pill-input" />
+              <label for="st-mod" class="pill-label">😐 Moderate</label>
+              <input type="radio" name="stress" id="st-high" value="High" class="pill-input" />
+              <label for="st-high" class="pill-label">😰 High</label>
+              <input type="radio" name="stress" id="st-very" value="Very High" class="pill-input" />
+              <label for="st-very" class="pill-label">🤯 Very High</label>
+            </div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Smoking / Alcohol</label>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <input type="radio" name="smoking" id="sm-no" value="Non-smoker, No alcohol" class="pill-input" />
+            <label for="sm-no" class="pill-label">✅ None</label>
+            <input type="radio" name="smoking" id="sm-social" value="Social drinker" class="pill-input" />
+            <label for="sm-social" class="pill-label">🍷 Social drinker</label>
+            <input type="radio" name="smoking" id="sm-smoke" value="Smoker" class="pill-input" />
+            <label for="sm-smoke" class="pill-label">🚬 Smoker</label>
+            <input type="radio" name="smoking" id="sm-both" value="Both" class="pill-input" />
+            <label for="sm-both" class="pill-label">⚠️ Both</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="step-nav">
+        <button class="btn-back" onclick="prevStep(5)">← Back</button>
+        <button class="btn-next" onclick="nextStep(5)">Continue →</button>
+      </div>
+    </div>
+
+    <!-- ==================== STEP 6: Final preferences ==================== -->
+    <div class="step-card" id="step-6">
+      <div class="step-icon">🌸</div>
+      <div class="step-heading">Almost There!</div>
+      <div class="step-subhead">A few final details to complete your personalised nutrition plan.</div>
+
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label" for="waterTarget">Daily Water Goal</label>
+          <select id="waterTarget" class="form-select">
+            <option>1.5L (Light)</option>
+            <option selected>2L (Standard)</option>
+            <option>2.5L (Recommended)</option>
+            <option>3L (Active)</option>
+            <option>3.5L+ (Athlete)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="budget">Monthly Food Budget</label>
+          <select id="budget" class="form-select">
+            <option>₹2,000 – ₹4,000 (Budget)</option>
+            <option selected>₹4,000 – ₹8,000 (Moderate)</option>
+            <option>₹8,000 – ₹15,000 (Comfortable)</option>
+            <option>₹15,000+ (Premium)</option>
+          </select>
+        </div>
+
+        <div class="form-group span-2">
+          <label class="form-label" for="dislikes">Foods You Dislike / Avoid</label>
+          <input type="text" id="dislikes" class="form-input"
+            placeholder="e.g. bitter gourd, mushrooms, raw onion..." />
+        </div>
+
+        <div class="form-group span-2">
+          <label class="form-label" for="favFoods">Favourite Healthy Foods</label>
+          <input type="text" id="favFoods" class="form-input"
+            placeholder="e.g. avocado, paneer, Greek yogurt, salmon..." />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Meal Reminder Notifications</label>
+          <div class="pill-group">
+            <input type="radio" name="reminders" id="rem-yes" value="Yes" class="pill-input" checked />
+            <label for="rem-yes" class="pill-label">🔔 Yes, remind me</label>
+            <input type="radio" name="reminders" id="rem-no" value="No" class="pill-input" />
+            <label for="rem-no" class="pill-label">🔕 No thanks</label>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Plan Type Preference</label>
+          <select id="planPreference" class="form-select">
+            <option>Essentials (simple &amp; budget-friendly)</option>
+            <option selected>Advanced (macro-optimised)</option>
+            <option>Elite (full dietitian support)</option>
+          </select>
+        </div>
+
+        <div class="form-group span-2">
+          <label class="form-label" for="additionalNotes">Anything else we should know? <span
+              class="label-hint">(optional)</span></label>
+          <textarea id="additionalNotes" class="form-textarea"
+            placeholder="e.g. I follow Ramadan fasting, I have a night-shift job, I'm postpartum, I'm training for a marathon..."></textarea>
+        </div>
+      </div>
+
+      <div class="step-nav">
+        <button class="btn-back" onclick="prevStep(6)">← Back</button>
+        <button class="btn-next" onclick="submitForm()"
+          style="background: linear-gradient(135deg,#be185d,#db2777,#f472b6);">
+          🌸 Create My Plan
+        </button>
+      </div>
+    </div>
+
+    <!-- ==================== SUCCESS SCREEN ==================== -->
+    <div class="step-card active" id="step-success" style="display:none; text-align:center;">
+      <div class="success-screen active">
+        <div class="success-ring">🌸</div>
+        <div class="success-title">Your Plan is Ready! 🎉</div>
+        <div class="success-desc">
+          We've crafted a personalised nutrition plan just for you.<br>
+          Your dashboard is loading with your daily goals and meal plan.
+        </div>
+        <div class="redirect-bar">
+          <div class="redirect-fill" id="redirectFill"></div>
+        </div>
+        <div class="redirect-label">Redirecting to your dashboard...</div>
+      </div>
+    </div>
+
+  </div><!-- /onboard-wrap -->
+
+  <script>
+    const TOTAL_STEPS = 6;
+    let currentStep = 1;
+
+    // ---- Build step pips ----
+    const pipsContainer = document.getElementById('stepPips');
+    for (let i = 0; i < TOTAL_STEPS; i++) {
+      const pip = document.createElement('div');
+      pip.className = 'step-pip' + (i === 0 ? ' active' : '');
+      pip.id = 'pip-' + (i + 1);
+      pipsContainer.appendChild(pip);
+    }
+
+    const stepLabels = [
+      "Let's get to know you",
+      "Your body measurements",
+      "Food preferences",
+      "Your health goals",
+      "Medical history",
+      "Final touches"
+    ];
+
+    function updateProgress() {
+      for (let i = 1; i <= TOTAL_STEPS; i++) {
+        const pip = document.getElementById('pip-' + i);
+        pip.className = 'step-pip' + (i < currentStep ? ' done' : i === currentStep ? ' active' : '');
+      }
+      document.getElementById('progressLabel').innerHTML =
+        `Step <strong>${currentStep}</strong> of <strong>${TOTAL_STEPS}</strong> — ${stepLabels[currentStep - 1]}`;
+    }
+
+    function showStep(n) {
+      document.querySelectorAll('.step-card').forEach(c => c.classList.remove('active'));
+      const target = document.getElementById('step-' + n);
+      if (target) target.classList.add('active');
+      updateProgress();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // ---- Validation helpers ----
+    function showErr(id, show) {
+      const el = document.getElementById('err-' + id);
+      if (el) el.classList.toggle('show', show);
+    }
+    function clearErrs(...ids) { ids.forEach(id => showErr(id, false)); }
+
+    function validateStep(step) {
+      let valid = true;
+      if (step === 1) {
+        const fn = document.getElementById('firstName').value.trim();
+        const dob = document.getElementById('dob').value;
+        const email = document.getElementById('email').value.trim();
+        const gender = document.querySelector('input[name="gender"]:checked');
+
+        showErr('firstName', !fn); if (!fn) valid = false;
+        showErr('dob', !dob); if (!dob) valid = false;
+        showErr('email', !email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)); if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) valid = false;
+        showErr('gender', !gender); if (!gender) valid = false;
+      }
+      if (step === 2) {
+        const h = parseFloat(document.getElementById('height').value);
+        const w = parseFloat(document.getElementById('weight').value);
+        const act = document.querySelector('input[name="activity"]:checked');
+        showErr('height', !h || h < 100 || h > 250); if (!h || h < 100 || h > 250) valid = false;
+        showErr('weight', !w || w < 30 || w > 300); if (!w || w < 30 || w > 300) valid = false;
+        showErr('activity', !act); if (!act) valid = false;
+      }
+      if (step === 3) {
+        const diet = document.querySelector('input[name="diet"]:checked');
+        showErr('diet', !diet); if (!diet) valid = false;
+      }
+      if (step === 4) {
+        const goal = document.querySelector('input[name="primaryGoal"]:checked');
+        showErr('primaryGoal', !goal); if (!goal) valid = false;
+      }
+      return valid;
+    }
+
+    function nextStep(current) {
+      if (!validateStep(current)) return;
+      currentStep = current + 1;
+      showStep(currentStep);
+    }
+
+    function prevStep(current) {
+      currentStep = current - 1;
+      showStep(currentStep);
+    }
+
+    function collectFormData() {
+      const getChecked = (name) => {
+        const el = document.querySelector(`input[name="${name}"]:checked`);
+        return el ? el.value : '';
+      };
+      const getMultiChecked = (selector) =>
+        [...document.querySelectorAll(selector + ':checked')].map(e => e.value).join(', ');
+
+      return {
+        firstName: document.getElementById('firstName').value.trim(),
+        lastName: document.getElementById('lastName').value.trim(),
+        dob: document.getElementById('dob').value,
+        email: document.getElementById('email').value.trim(),
+        gender: getChecked('gender'),
+        height: document.getElementById('height').value,
+        weight: document.getElementById('weight').value,
+        targetWeight: document.getElementById('targetWeight').value,
+        waist: document.getElementById('waist').value,
+        hips: document.getElementById('hips').value,
+        bodyFat: document.getElementById('bodyFat').value,
+        activityLevel: getChecked('activity'),
+        dietStyle: getChecked('diet'),
+        allergies: getMultiChecked('.check-card-input[id^="al-"]'),
+        cuisine: document.getElementById('cuisine').value,
+        mealsPerDay: document.getElementById('mealsPerDay').value,
+        cookingTime: document.getElementById('cookingTime').value,
+        primaryGoal: getChecked('primaryGoal'),
+        timeline: getChecked('timeline'),
+        workoutDays: document.getElementById('workoutDays').value,
+        workoutType: document.getElementById('workoutType').value,
+        sleepHours: document.getElementById('sleepHours').value,
+        medicalConditions: getMultiChecked('.check-card-input[id^="mc-"]'),
+        medications: document.getElementById('medications').value.trim(),
+        supplements: document.getElementById('supplements').value.trim(),
+        surgeries: document.getElementById('surgeries').value.trim(),
+        stressLevel: getChecked('stress'),
+        smoking: getChecked('smoking'),
+        waterTarget: document.getElementById('waterTarget').value,
+        budget: document.getElementById('budget').value,
+        dislikes: document.getElementById('dislikes').value.trim(),
+        favFoods: document.getElementById('favFoods').value.trim(),
+        reminders: getChecked('reminders'),
+        planPreference: document.getElementById('planPreference').value,
+        additionalNotes: document.getElementById('additionalNotes').value.trim()
+      };
+    }
+
+    function submitForm() {
+      if (!validateStep(6)) return; // nothing required on step 6
+      const data = collectFormData();
+      // Save to sessionStorage so dashboard can read it
+      sessionStorage.setItem('ngProfile', JSON.stringify(data));
+      // Also set nzUser to persist login-like state
+      sessionStorage.setItem('nzUser', JSON.stringify({
+        email: data.email,
+        name: data.firstName + ' ' + data.lastName
+      }));
+
+      // Show success screen
+      document.querySelectorAll('.step-card').forEach(c => c.classList.remove('active'));
+      const successCard = document.getElementById('step-success');
+      successCard.style.display = 'block';
+      successCard.classList.add('active');
+      document.getElementById('progressLabel').innerHTML = `<strong style="color:var(--pink-dark)">✓ Profile Complete!</strong>`;
+      [...document.querySelectorAll('.step-pip')].forEach(p => { p.className = 'step-pip done'; });
+
+      // Animate redirect bar and redirect
+      setTimeout(() => {
+        document.getElementById('redirectFill').style.width = '100%';
+      }, 100);
+      setTimeout(() => {
+        window.location.href = 'dashboard.html';
+      }, 3100);
+    }
+
+    // Initialise
+    updateProgress();
+  </script>
+</body>
+
+</html>

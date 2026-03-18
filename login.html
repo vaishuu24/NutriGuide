@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sign In — NutriGuiide</title>
+  <meta name="description"
+    content="Sign in to your NutriGuiide account to access your personalized diet plan and dashboard." />
+  <link rel="stylesheet" href="login.css" />
+  <style>
+    /* ---- Tab Switcher ---- */
+    .login-tabs {
+      display: flex;
+      background: var(--gray-50);
+      border: 1.5px solid var(--gray-100);
+      border-radius: var(--radius-full);
+      padding: 4px;
+      margin-bottom: 28px;
+    }
+
+    .login-tab {
+      flex: 1;
+      padding: 9px 12px;
+      border-radius: var(--radius-full);
+      border: none;
+      background: transparent;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--gray-600);
+      cursor: pointer;
+      transition: all 0.28s cubic-bezier(0.23, 1, 0.32, 1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+    }
+
+    .login-tab.active {
+      background: var(--white);
+      color: var(--mint-dark);
+      box-shadow: 0 2px 12px rgba(244, 114, 182, 0.22);
+    }
+
+    /* Phone-specific */
+    .phone-prefix-wrap {
+      display: flex;
+      align-items: center;
+    }
+
+    .phone-prefix {
+      position: absolute;
+      left: 46px;
+      font-size: 0.92rem;
+      font-weight: 600;
+      color: var(--gray-900);
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    .phone-input-field {
+      padding-left: 80px !important;
+    }
+
+    /* OTP Section */
+    .otp-section {
+      display: none;
+    }
+
+    .otp-section.show {
+      display: block;
+    }
+
+    .otp-boxes {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin: 10px 0 6px;
+    }
+
+    .otp-box {
+      width: 50px;
+      height: 54px;
+      text-align: center;
+      font-size: 1.4rem;
+      font-weight: 700;
+      border: 2px solid var(--gray-100);
+      border-radius: 14px;
+      background: var(--gray-50);
+      font-family: 'Outfit', sans-serif;
+      color: var(--gray-900);
+      outline: none;
+      transition: all 0.25s;
+    }
+
+    .otp-box:focus {
+      border-color: var(--mint);
+      background: var(--white);
+      box-shadow: 0 0 0 4px rgba(244, 114, 182, 0.15);
+    }
+
+    .otp-box.filled {
+      border-color: var(--mint-dark);
+      background: #fdf2f8;
+    }
+
+    .otp-timer {
+      text-align: center;
+      font-size: 0.8rem;
+      color: var(--gray-600);
+      margin-bottom: 18px;
+    }
+
+    .otp-timer span {
+      color: var(--mint-dark);
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .otp-timer span:hover {
+      text-decoration: underline;
+    }
+
+    .send-otp-btn {
+      width: 100%;
+      padding: 13px;
+      border-radius: var(--radius-full);
+      background: linear-gradient(135deg, var(--mint-dark), var(--mint));
+      color: var(--white);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 700;
+      border: none;
+      cursor: pointer;
+      transition: all 0.35s cubic-bezier(0.23, 1, 0.32, 1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 6px 22px rgba(244, 114, 182, 0.32);
+      margin-bottom: 16px;
+    }
+
+    .send-otp-btn:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 36px rgba(244, 114, 182, 0.48);
+    }
+
+    .send-otp-btn:disabled {
+      opacity: 0.75;
+      cursor: not-allowed;
+    }
+
+    .otp-hint {
+      text-align: center;
+      font-size: 0.78rem;
+      color: var(--gray-600);
+      margin-bottom: 14px;
+    }
+
+    .otp-hint strong {
+      color: var(--mint-dark);
+    }
+
+    /* Tab-specific form sections */
+    .tab-panel {
+      display: none;
+    }
+
+    .tab-panel.active {
+      display: block;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Background blobs -->
+  <div class="bg-blob b1"></div>
+  <div class="bg-blob b2"></div>
+  <div class="bg-blob b3"></div>
+
+  <!-- Floating background food icons -->
+  <div class="bg-food-icons" aria-hidden="true">
+    <span class="food-icon">🥑</span>
+    <span class="food-icon">🍓</span>
+    <span class="food-icon">🥦</span>
+    <span class="food-icon">🍋</span>
+    <span class="food-icon">🫐</span>
+    <span class="food-icon">🥝</span>
+    <span class="food-icon">🍎</span>
+    <span class="food-icon">🥕</span>
+  </div>
+
+  <!-- Navbar -->
+  <nav class="login-nav">
+    <a href="index.html" class="nav-logo">💗 NutriGuiide</a>
+    <a href="index.html" class="nav-back">← Back to Home</a>
+  </nav>
+
+  <!-- Main -->
+  <main class="login-main">
+    <div class="login-wrapper">
+
+      <!-- ===== Left Panel ===== -->
+      <div class="login-panel-left">
+        <span class="panel-badge">✦ Member Portal</span>
+        <h2 class="panel-title">Welcome<br>back.<br><span>Let's eat well.</span></h2>
+        <p class="panel-desc">Your personalised nutrition plan is waiting. Log in to track your meals, macros, and
+          progress.</p>
+
+        <!-- Meal tracker widget -->
+        <div class="food-widget">
+          <div class="food-widget-title">📋 Today's Plan Preview</div>
+
+          <div class="meal-item">
+            <div class="meal-icon">🌅</div>
+            <div class="meal-info">
+              <div class="meal-name">Breakfast</div>
+              <div class="meal-cal">Avocado Toast + Eggs • 380 kcal</div>
+            </div>
+            <div class="meal-bar-wrap">
+              <div class="meal-bar" style="width:80%"></div>
+            </div>
+          </div>
+
+          <div class="meal-item">
+            <div class="meal-icon">☀️</div>
+            <div class="meal-info">
+              <div class="meal-name">Lunch</div>
+              <div class="meal-cal">Grilled Salmon Bowl • 520 kcal</div>
+            </div>
+            <div class="meal-bar-wrap">
+              <div class="meal-bar" style="width:65%"></div>
+            </div>
+          </div>
+
+          <div class="meal-item">
+            <div class="meal-icon">🌙</div>
+            <div class="meal-info">
+              <div class="meal-name">Dinner</div>
+              <div class="meal-cal">Quinoa Veggie Stir-fry • 440 kcal</div>
+            </div>
+            <div class="meal-bar-wrap">
+              <div class="meal-bar" style="width:55%"></div>
+            </div>
+          </div>
+
+          <div class="meal-item">
+            <div class="meal-icon">🍎</div>
+            <div class="meal-info">
+              <div class="meal-name">Snacks</div>
+              <div class="meal-cal">Mixed Nuts + Apple • 180 kcal</div>
+            </div>
+            <div class="meal-bar-wrap">
+              <div class="meal-bar" style="width:30%"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== Right Panel (Form) ===== -->
+      <div class="login-panel-right">
+
+        <div class="form-header">
+          <h1 class="form-title">Sign In 👋</h1>
+          <p class="form-subtitle">
+            Don't have an account? <a href="#">Sign up free</a>
+          </p>
+        </div>
+
+        <!-- Tab Switcher -->
+        <div class="login-tabs" role="tablist">
+          <button class="login-tab active" id="tab-email" role="tab" aria-selected="true" onclick="switchTab('email')">
+            📧 Email
+          </button>
+          <button class="login-tab" id="tab-phone" role="tab" aria-selected="false" onclick="switchTab('phone')">
+            📱 Phone Number
+          </button>
+        </div>
+
+        <!-- Global form alert -->
+        <div class="form-alert error-alert" id="formAlert">
+          <span>⚠️</span> <span id="alertText">Something went wrong. Please try again.</span>
+        </div>
+
+        <!-- ===========================
+             EMAIL TAB PANEL
+        ============================ -->
+        <div class="tab-panel active" id="panel-email">
+          <form id="loginFormEmail" novalidate autocomplete="on">
+
+            <!-- Email -->
+            <div class="form-group">
+              <label class="form-label" for="email">Email Address</label>
+              <div class="input-wrapper">
+                <span class="input-icon">📧</span>
+                <input type="email" id="email" name="email" class="form-input" placeholder="you@example.com"
+                  autocomplete="email" autocapitalize="off" spellcheck="false" />
+              </div>
+              <div class="field-error" id="emailError">
+                <span>⚠</span> <span id="emailErrorText">Please enter a valid email address.</span>
+              </div>
+              <div class="field-success" id="emailSuccess">
+                <span>✓</span> Looks good!
+              </div>
+            </div>
+
+            <!-- Password -->
+            <div class="form-group">
+              <label class="form-label" for="password">Password</label>
+              <div class="input-wrapper">
+                <span class="input-icon">🔑</span>
+                <input type="password" id="password" name="password" class="form-input"
+                  placeholder="Enter your password" autocomplete="current-password" />
+                <button type="button" class="toggle-pw" id="togglePw"
+                  aria-label="Toggle password visibility">👁️</button>
+              </div>
+              <div class="field-error" id="passwordError">
+                <span>⚠</span> <span id="passwordErrorText">Password does not meet requirements.</span>
+              </div>
+              <div class="field-success" id="passwordSuccess">
+                <span>✓</span> Strong password!
+              </div>
+
+              <!-- Requirements checklist -->
+              <div class="pw-requirements" id="pwRequirements">
+                <div class="pw-req-item" id="req-len">
+                  <span class="req-dot"></span> At least 8 characters
+                </div>
+                <div class="pw-req-item" id="req-num">
+                  <span class="req-dot"></span> At least one number (0–9)
+                </div>
+                <div class="pw-req-item" id="req-special">
+                  <span class="req-dot"></span> At least one special character (!@#$%^&*)
+                </div>
+              </div>
+            </div>
+
+            <!-- Remember / Forgot -->
+            <div class="form-check">
+              <label class="check-wrap">
+                <input type="checkbox" id="rememberMe" />
+                <span class="check-label">Remember me</span>
+              </label>
+              <a href="#" class="forgot-link">Forgot password?</a>
+            </div>
+
+            <!-- Submit -->
+            <button type="submit" class="btn-submit" id="submitBtnEmail">
+              <span class="spinner" id="spinnerEmail"></span>
+              <span id="submitTextEmail">Sign In</span>
+            </button>
+
+          </form>
+
+          <div class="divider">or continue with</div>
+          <div class="social-btns">
+            <button class="btn-social" type="button" data-provider="Google">
+              <span class="social-icon">🔵</span> Google
+            </button>
+            <button class="btn-social" type="button" data-provider="Apple">
+              <span class="social-icon">🍎</span> Apple
+            </button>
+          </div>
+        </div>
+
+        <!-- ===========================
+             PHONE TAB PANEL
+        ============================ -->
+        <div class="tab-panel" id="panel-phone">
+
+          <!-- Step 1: Enter phone number -->
+          <div id="phoneStep1">
+
+            <div class="form-group">
+              <label class="form-label" for="phoneNumber">Mobile Number</label>
+              <div class="input-wrapper">
+                <span class="input-icon">📱</span>
+                <span class="phone-prefix">+91</span>
+                <input type="tel" id="phoneNumber" class="form-input phone-input-field" placeholder="98765 43210"
+                  maxlength="10" autocomplete="tel" inputmode="numeric" />
+              </div>
+              <div class="field-error" id="phoneError">
+                <span>⚠</span> <span id="phoneErrorText">Enter a valid 10-digit mobile number.</span>
+              </div>
+              <div class="field-success" id="phoneSuccess">
+                <span>✓</span> Valid number!
+              </div>
+            </div>
+
+            <p style="font-size:0.8rem; color:var(--gray-600); margin-bottom:20px; line-height:1.6;">
+              We'll send a 6-digit OTP to this number via SMS. Standard messaging rates may apply.
+            </p>
+
+            <button type="button" class="send-otp-btn" id="sendOtpBtn">
+              <span class="spinner" id="spinnerOtp"></span>
+              <span id="sendOtpText">Send OTP</span>
+            </button>
+
+          </div>
+
+          <!-- Step 2: Enter OTP -->
+          <div class="otp-section" id="phoneStep2">
+
+            <p class="otp-hint">
+              OTP sent to <strong id="otpSentTo">+91 XXXXXXXXXX</strong><br>
+              <span style="font-size:0.75rem">Enter the 6-digit code below</span>
+            </p>
+
+            <div class="otp-boxes">
+              <input type="text" class="otp-box" maxlength="1" inputmode="numeric" pattern="[0-9]"
+                autocomplete="one-time-code" />
+              <input type="text" class="otp-box" maxlength="1" inputmode="numeric" pattern="[0-9]" />
+              <input type="text" class="otp-box" maxlength="1" inputmode="numeric" pattern="[0-9]" />
+              <input type="text" class="otp-box" maxlength="1" inputmode="numeric" pattern="[0-9]" />
+              <input type="text" class="otp-box" maxlength="1" inputmode="numeric" pattern="[0-9]" />
+              <input type="text" class="otp-box" maxlength="1" inputmode="numeric" pattern="[0-9]" />
+            </div>
+
+            <div class="field-error" id="otpError" style="justify-content:center;">
+              <span>⚠</span> <span id="otpErrorText">Incorrect OTP. Please try again.</span>
+            </div>
+
+            <div class="otp-timer" id="otpTimerWrap">
+              Resend OTP in <span id="otpTimerNum">30</span>s
+            </div>
+            <div class="otp-timer" id="resendWrap" style="display:none;">
+              Didn't receive it? <span id="resendLink">Resend OTP</span>
+            </div>
+
+            <button type="button" class="send-otp-btn" id="verifyOtpBtn">
+              <span class="spinner" id="spinnerVerify"></span>
+              <span id="verifyOtpText">Verify &amp; Sign In</span>
+            </button>
+
+            <button type="button" onclick="backToPhone()"
+              style="width:100%; background:none; border:none; color:var(--gray-600); font-size:0.85rem; font-weight:600; cursor:pointer; margin-top:4px; padding:6px;">
+              ← Change number
+            </button>
+
+          </div>
+
+        </div>
+        <!-- end panel-phone -->
+
+      </div>
+    </div>
+  </main>
+
+  <!-- ===== Success Overlay ===== -->
+  <div class="success-overlay" id="successOverlay" role="dialog" aria-modal="true">
+    <div class="success-modal">
+      <div class="success-icon-wrap" id="successIcon">✓</div>
+      <h2 class="success-title">You're In! 🎉</h2>
+      <p class="success-desc">
+        Welcome back! Your personalised dashboard is loading.<br>
+        Get ready to nourish your best self.
+      </p>
+      <div class="success-redirect-bar">
+        <div class="redirect-progress" id="redirectProgress"></div>
+      </div>
+      <p class="success-redirect-label" id="redirectLabel">Redirecting to dashboard...</p>
+    </div>
+  </div>
+
+  <script src="login.js"></script>
+</body>
+
+</html>
